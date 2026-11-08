@@ -23,7 +23,7 @@ except ImportError:
 
 # ── Args ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="Qwen3.5-4B Uncensored Chat")
-parser.add_argument("--url", default="https://qwen-api.sharvin.workers.dev/v1", help="API base URL")
+parser.add_argument("--url", default="https://qwen-api.vtrsharvin.workers.dev/v1", help="API base URL")
 parser.add_argument("--model", default="qwen3.5-4b-uncensored", help="Model name")
 parser.add_argument("--max-tokens", type=int, default=512)
 parser.add_argument("--temp", type=float, default=0.7)

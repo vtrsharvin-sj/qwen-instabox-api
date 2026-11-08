@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 :: Replace with your Instabox port tunnel URL
-set API_URL=https://qwen-api.sharvin.workers.dev
+set API_URL=https://qwen-api.vtrsharvin.workers.dev
 
 echo ============================================
 echo   Qwen3.5-4B Uncensored API - Test Suite

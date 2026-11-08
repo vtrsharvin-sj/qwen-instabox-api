@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://qwen-api.sharvin.workers.dev/v1",
+    base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
     api_key="none",
     timeout=120,
 )

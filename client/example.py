@@ -5,7 +5,7 @@ Replace BASE_URL with your own Instabox tunnel URL.
 
 from openai import OpenAI
 
-BASE_URL = "https://qwen-api.sharvin.workers.dev/v1"
+BASE_URL = "https://qwen-api.vtrsharvin.workers.dev/v1"
 
 client = OpenAI(base_url=BASE_URL, api_key="none")
 
