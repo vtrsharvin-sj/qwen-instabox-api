@@ -2,13 +2,12 @@
  * Cloudflare Worker — Qwen3.5-4B Uncensored API Proxy
  * Public URL: https://qwen-api.vtrsharvin.workers.dev
  *
- * API key is stored as a Cloudflare secret — NOT hardcoded here.
- * To set it:
+ * Both secrets are stored in Cloudflare Worker secrets — never hardcoded here.
+ * To set them:
  *   Workers dashboard → qwen-api → Settings → Variables → Add secret
- *   Name: API_KEY  |  Value: your_secret_key
+ *   Name: API_KEY   | Value: your_secret_key
+ *   Name: BACKEND   | Value: your_instabox_url  (no trailing slash)
  */
-
-const BACKEND = "https://8000-agq3kirkx25dxx5s7haejfgk4a.instabox.tech";
 
 addEventListener("fetch", event => {
   event.respondWith(handleRequest(event.request));
@@ -43,8 +42,7 @@ async function handleRequest(request) {
     }), { status: 405, headers: { "Content-Type": "application/json", ...corsHeaders() } });
   }
 
-  // ── Auth check against secret ─────────────────────────────────────────────
-  // API_KEY is injected by Cloudflare from Worker secrets — never in source code
+  // ── Auth check ────────────────────────────────────────────────────────────
   if (provided !== API_KEY) {
     return new Response(JSON.stringify({
       error: { message: "Incorrect API key provided.", type: "authentication_error", param: null, code: "invalid_api_key" }
