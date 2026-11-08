@@ -11,6 +11,7 @@ Run **Qwen3.5-4B Uncensored** as an OpenAI-compatible REST API on a free [Instab
 | `server/api_server.py` | FastAPI server — OpenAI-compatible endpoints |
 | `server/start.sh` | Starts the API + keep-alive loop (prevents idle sleep) |
 | `server/setup.sh` | One-shot setup: installs deps, downloads model, starts server |
+| `cloudflare-worker/worker.js` | Cloudflare Worker proxy with API key auth |
 | `client/chat.py` | Interactive terminal chat assistant |
 | `client/example.py` | Minimal OpenAI SDK usage example |
 | `client/test_api.bat` | Windows CMD test suite (health, models, chat) |
@@ -42,15 +43,13 @@ That's it. The script will:
 
 ### 3 — Use the API
 
-Replace `YOUR_URL` with your Instabox port tunnel URL.
-
 **Python (OpenAI SDK):**
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="https://YOUR_URL/v1",
-    api_key="none",
+    base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
+    api_key="sharvin",
 )
 
 response = client.chat.completions.create(
@@ -66,8 +65,9 @@ print(response.choices[0].message.content)
 
 **curl:**
 ```bash
-curl -X POST https://YOUR_URL/v1/chat/completions \
+curl -X POST https://qwen-api.vtrsharvin.workers.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sharvin" \
   -d '{
     "model": "qwen3.5-4b-uncensored",
     "messages": [{"role": "user", "content": "Hello!"}],
@@ -80,8 +80,8 @@ curl -X POST https://YOUR_URL/v1/chat/completions \
 from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(
-    base_url="https://YOUR_URL/v1",
-    api_key="none",
+    base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
+    api_key="sharvin",
     model="qwen3.5-4b-uncensored",
 )
 ```
@@ -92,11 +92,10 @@ llm = ChatOpenAI(
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/` | Health check |
+| `GET` | `/docs` | Interactive Swagger UI (no auth needed) |
 | `GET` | `/v1/models` | List available models |
 | `POST` | `/v1/chat/completions` | Chat (OpenAI-compatible) |
 | `POST` | `/v1/completions` | Raw text completion |
-| `GET` | `/docs` | Interactive Swagger UI |
 
 ---
 
