@@ -20,8 +20,8 @@ async function handleRequest(request) {
   }
 
   // ── Auth check ────────────────────────────────────────────────────────────
-  const auth    = request.headers.get("Authorization") || "";
-  const xapiKey = request.headers.get("x-api-key")     || "";
+  const auth     = request.headers.get("Authorization") || "";
+  const xApiKey  = request.headers.get("x-api-key")     || "";
   const provided = auth.startsWith("Bearer ")
     ? auth.slice(7).trim()
     : xApiKey.trim();
