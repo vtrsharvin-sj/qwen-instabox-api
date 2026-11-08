@@ -37,5 +37,12 @@ keepalive &
 KEEPALIVE_PID=$!
 echo "[start.sh] Keep-alive started (PID $KEEPALIVE_PID, every 27 min) → keepalive.log"
 
-# ── API server ────────────────────────────────────────────────────────────────
-exec python3 "$BASE/api_server.py"
+# ── Watchdog — restarts API server if it crashes ──────────────────────────────
+echo "[start.sh] Starting API server watchdog..."
+while true; do
+    echo "[watchdog] $(date '+%Y-%m-%d %H:%M:%S') Starting api_server.py..."
+    python3 "$BASE/api_server.py"
+    EXIT_CODE=$?
+    echo "[watchdog] $(date '+%Y-%m-%d %H:%M:%S') Server exited (code $EXIT_CODE). Restarting in 5s..."
+    sleep 5
+done

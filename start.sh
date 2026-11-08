@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start the Qwen3.5-4B Uncensored API server + keep-alive loop
+# Start the Qwen3.5-4B Uncensored API server + keep-alive + watchdog
 
 cd /data/home
 source venv/bin/activate
@@ -13,9 +13,8 @@ if [ -n "$OLD_PID" ]; then
 fi
 
 # ── Keep-alive ────────────────────────────────────────────────────────────────
-# Runs system info every 27 minutes so the Instabox free server never sleeps.
 keepalive() {
-    local INTERVAL=$((27 * 60))   # 27 minutes in seconds
+    local INTERVAL=$((27 * 60))
     local LOG=/data/home/keepalive.log
 
     while true; do
@@ -36,5 +35,12 @@ keepalive &
 KEEPALIVE_PID=$!
 echo "[start.sh] Keep-alive started (PID $KEEPALIVE_PID, every 27 min) → keepalive.log"
 
-# ── API server ────────────────────────────────────────────────────────────────
-exec python3 api_server.py
+# ── Watchdog — auto-restarts API server if it crashes ────────────────────────
+echo "[start.sh] Starting watchdog..."
+while true; do
+    echo "[watchdog] $(date '+%Y-%m-%d %H:%M:%S') Starting api_server.py..."
+    python3 /data/home/api_server.py >> /data/home/server.log 2>&1
+    EXIT_CODE=$?
+    echo "[watchdog] $(date '+%Y-%m-%d %H:%M:%S') Server exited (code $EXIT_CODE). Restarting in 5s..."
+    sleep 5
+done
