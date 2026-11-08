@@ -1,64 +1,54 @@
 /**
- * Cloudflare Worker — Proxy for Qwen3.5-4B Uncensored API
+ * Cloudflare Worker — Qwen3.5-4B Uncensored API Proxy
+ * Paste this into the Cloudflare dashboard editor and click Deploy.
  * Public URL: https://qwen-api.sharvin.workers.dev
- * Forwards all requests to the Instabox backend.
  */
 
 const BACKEND = "https://8000-agq3kirkx25dxx5s7haejfgk4a.instabox.tech";
 
-export default {
-  async fetch(request, env, ctx) {
-    const url = new URL(request.url);
+addEventListener("fetch", event => {
+  event.respondWith(handleRequest(event.request));
+});
 
-    // ── CORS preflight ────────────────────────────────────────────────────────
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: corsHeaders(),
-      });
-    }
+async function handleRequest(request) {
+  const url = new URL(request.url);
 
-    // ── Proxy request to backend ──────────────────────────────────────────────
-    const backendUrl = BACKEND + url.pathname + url.search;
+  // CORS preflight
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders() });
+  }
 
-    const proxyRequest = new Request(backendUrl, {
+  // Proxy to backend
+  const backendUrl = BACKEND + url.pathname + url.search;
+
+  try {
+    const proxyReq = new Request(backendUrl, {
       method:  request.method,
       headers: request.headers,
-      body:    request.method !== "GET" && request.method !== "HEAD"
-                 ? request.body
-                 : undefined,
+      body:    ["GET", "HEAD"].includes(request.method) ? undefined : request.body,
     });
 
-    let response;
-    try {
-      response = await fetch(proxyRequest);
-    } catch (err) {
-      return new Response(
-        JSON.stringify({
-          error: {
-            message: "Backend unreachable. The Instabox server may be starting up — try again in 10 seconds.",
-            type: "backend_error",
-            param: null,
-            code: "backend_unreachable",
-          },
-        }),
-        {
-          status: 503,
-          headers: { "Content-Type": "application/json", ...corsHeaders() },
-        }
-      );
-    }
+    const res = await fetch(proxyReq);
 
-    // ── Stream-through response with CORS headers ─────────────────────────────
-    const newHeaders = new Headers(response.headers);
+    const newHeaders = new Headers(res.headers);
     Object.entries(corsHeaders()).forEach(([k, v]) => newHeaders.set(k, v));
 
-    return new Response(response.body, {
-      status:  response.status,
-      headers: newHeaders,
+    return new Response(res.body, { status: res.status, headers: newHeaders });
+
+  } catch (err) {
+    return new Response(JSON.stringify({
+      error: {
+        message: "Backend unreachable. Try again in 10 seconds.",
+        type: "backend_error",
+        param: null,
+        code: "backend_unreachable",
+      }
+    }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", ...corsHeaders() },
     });
-  },
-};
+  }
+}
 
 function corsHeaders() {
   return {
