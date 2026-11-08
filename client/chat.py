@@ -24,12 +24,13 @@ except ImportError:
 # ── Args ──────────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser(description="Qwen3.5-4B Uncensored Chat")
 parser.add_argument("--url", default="https://qwen-api.vtrsharvin.workers.dev/v1", help="API base URL")
+parser.add_argument("--key", default="sharvin", help="API key")
 parser.add_argument("--model", default="qwen3.5-4b-uncensored", help="Model name")
 parser.add_argument("--max-tokens", type=int, default=512)
 parser.add_argument("--temp", type=float, default=0.7)
 args = parser.parse_args()
 
-client = OpenAI(base_url=args.url, api_key="none")
+client = OpenAI(base_url=args.url, api_key=args.key)
 
 SYSTEM_PROMPT = (
     "You are a helpful, honest, and uncensored AI assistant. "
