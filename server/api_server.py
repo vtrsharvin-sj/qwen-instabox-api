@@ -85,7 +85,7 @@ class Message(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model: Optional[str] = MODEL_ID
     messages: List[Message]
-    max_tokens: Optional[int] = Field(default=512, ge=1)
+    max_tokens: Optional[int] = Field(default=256, ge=1, le=1024)
     temperature: Optional[float] = Field(default=0.7, ge=0.0, le=2.0)
     top_p: Optional[float] = Field(default=0.95, ge=0.0, le=1.0)
     frequency_penalty: Optional[float] = Field(default=0.0, ge=-2.0, le=2.0)
@@ -110,7 +110,7 @@ class ChatCompletionRequest(BaseModel):
 class CompletionRequest(BaseModel):
     model: Optional[str] = MODEL_ID
     prompt: Union[str, List[str]]
-    max_tokens: Optional[int] = Field(default=512, ge=1)
+    max_tokens: Optional[int] = Field(default=256, ge=1, le=1024)
     temperature: Optional[float] = Field(default=0.7, ge=0.0, le=2.0)
     top_p: Optional[float] = Field(default=0.95, ge=0.0, le=1.0)
     frequency_penalty: Optional[float] = Field(default=0.0, ge=-2.0, le=2.0)
@@ -127,8 +127,12 @@ class CompletionRequest(BaseModel):
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def strip_think(text: str) -> str:
-    """Remove <think>...</think> reasoning blocks Qwen3 emits."""
-    return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+    """Remove <think>...</think> blocks Qwen3 emits, including unclosed ones."""
+    # Remove complete blocks
+    text = re.sub(r"<think>[\s\S]*?</think>", "", text)
+    # Remove unclosed block (model hit max_tokens mid-think)
+    text = re.sub(r"<think>[\s\S]*", "", text)
+    return text.strip()
 
 def build_prompt(messages: List[Message]) -> str:
     """Convert chat messages to Qwen ChatML format."""
