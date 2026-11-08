@@ -18,6 +18,15 @@ async function handleRequest(request) {
     return new Response(null, { status: 204, headers: corsHeaders() });
   }
 
+  // ── /docs and /openapi.json — no auth needed ─────────────────────────────
+  if (url.pathname === "/docs" || url.pathname.startsWith("/openapi")) {
+    const backendUrl = BACKEND + url.pathname + url.search;
+    const res = await fetch(new Request(backendUrl, { method: request.method, headers: request.headers }));
+    const newHeaders = new Headers(res.headers);
+    Object.entries(corsHeaders()).forEach(([k, v]) => newHeaders.set(k, v));
+    return new Response(res.body, { status: res.status, headers: newHeaders });
+  }
+
   // ── Browser GET with no auth → 405 like real OpenAI ──────────────────────
   const auth    = request.headers.get("Authorization") || "";
   const xApiKey = request.headers.get("x-api-key")     || "";
