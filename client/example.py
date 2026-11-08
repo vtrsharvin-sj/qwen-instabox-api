@@ -6,7 +6,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
-    api_key="sharvin",
+    api_key="YOUR_API_KEY",
 )
 
 response = client.chat.completions.create(

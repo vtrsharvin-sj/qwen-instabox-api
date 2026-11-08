@@ -49,7 +49,7 @@ from openai import OpenAI
 
 client = OpenAI(
     base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
-    api_key="sharvin",
+    api_key="YOUR_API_KEY",
 )
 
 response = client.chat.completions.create(
@@ -67,7 +67,7 @@ print(response.choices[0].message.content)
 ```bash
 curl -X POST https://qwen-api.vtrsharvin.workers.dev/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer sharvin" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
   -d '{
     "model": "qwen3.5-4b-uncensored",
     "messages": [{"role": "user", "content": "Hello!"}],
@@ -81,7 +81,7 @@ from langchain_openai import ChatOpenAI
 
 llm = ChatOpenAI(
     base_url="https://qwen-api.vtrsharvin.workers.dev/v1",
-    api_key="sharvin",
+    api_key="YOUR_API_KEY",
     model="qwen3.5-4b-uncensored",
 )
 ```

@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 set API_URL=https://qwen-api.vtrsharvin.workers.dev
-set API_KEY=sharvin
+set API_KEY=YOUR_API_KEY
 
 echo ============================================
 echo   Qwen3.5-4B Uncensored API - Test Suite
